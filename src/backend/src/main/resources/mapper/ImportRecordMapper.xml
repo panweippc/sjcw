@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sjcw.mapper.ImportRecordMapper">
+
+    <resultMap id="ImportRecordResult" type="com.sjcw.entity.ImportRecord">
+        <id property="importId" column="import_id"/>
+        <result property="fileName" column="file_name"/>
+        <result property="filePath" column="file_path"/>
+        <result property="importType" column="import_type"/>
+        <result property="totalCount" column="total_count"/>
+        <result property="successCount" column="success_count"/>
+        <result property="failCount" column="fail_count"/>
+        <result property="status" column="status"/>
+        <result property="errorMessage" column="error_message"/>
+        <result property="importedBy" column="imported_by"/>
+        <result property="importedByName" column="real_name"/>
+        <result property="createdTime" column="created_time"/>
+        <result property="completedTime" column="completed_time"/>
+    </resultMap>
+
+    <sql id="selectImportRecordVo">
+        SELECT ir.import_id, ir.file_name, ir.file_path, ir.import_type,
+               ir.total_count, ir.success_count, ir.fail_count, ir.status,
+               ir.error_message, ir.imported_by, u.real_name,
+               ir.created_time, ir.completed_time
+        FROM sys_import_record ir
+        LEFT JOIN sys_user u ON ir.imported_by = u.user_id
+    </sql>
+
+    <select id="selectImportRecordList" parameterType="com.sjcw.entity.ImportRecord" resultMap="ImportRecordResult">
+        <include refid="selectImportRecordVo"/>
+        <where>
+            <if test="importType != null and importType != ''">AND ir.import_type = #{importType}</if>
+            <if test="status != null and status != ''">AND ir.status = #{status}</if>
+        </where>
+        ORDER BY ir.created_time DESC
+    </select>
+</mapper>

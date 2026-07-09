@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sjcw.mapper.PermissionMapper">
+
+    <resultMap id="PermissionResult" type="com.sjcw.entity.Permission">
+        <id property="permissionId" column="permission_id"/>
+        <result property="permissionName" column="permission_name"/>
+        <result property="permissionCode" column="permission_code"/>
+        <result property="menuId" column="menu_id"/>
+        <result property="description" column="description"/>
+        <result property="createdTime" column="created_time"/>
+    </resultMap>
+
+    <sql id="selectPermissionVo">
+        SELECT permission_id, permission_name, permission_code, menu_id, description, created_time
+        FROM sys_permission
+    </sql>
+
+    <select id="selectPermissionList" parameterType="com.sjcw.entity.Permission" resultMap="PermissionResult">
+        <include refid="selectPermissionVo"/>
+        <where>
+            <if test="permissionName != null and permissionName != ''">AND permission_name LIKE CONCAT('%', #{permissionName}, '%')</if>
+            <if test="menuId != null and menuId != ''">AND menu_id = #{menuId}</if>
+        </where>
+        ORDER BY created_time
+    </select>
+
+    <select id="selectPermissionsByMenuId" parameterType="string" resultMap="PermissionResult">
+        <include refid="selectPermissionVo"/>
+        WHERE menu_id = #{menuId}
+        ORDER BY created_time
+    </select>
+</mapper>

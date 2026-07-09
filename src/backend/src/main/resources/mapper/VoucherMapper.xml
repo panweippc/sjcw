@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sjcw.mapper.VoucherMapper">
+
+    <resultMap id="VoucherResult" type="com.sjcw.entity.Voucher">
+        <id property="voucherId" column="voucher_id"/>
+        <result property="unitId" column="unit_id"/>
+        <result property="voucherNo" column="voucher_no"/>
+        <result property="voucherDate" column="voucher_date"/>
+        <result property="summary" column="summary"/>
+        <result property="debitAmount" column="debit_amount"/>
+        <result property="creditAmount" column="credit_amount"/>
+        <result property="creator" column="creator"/>
+        <result property="status" column="status"/>
+        <result property="createdTime" column="created_time"/>
+        <result property="updatedTime" column="updated_time"/>
+    </resultMap>
+
+    <select id="selectYearSummary" parameterType="map" resultType="map">
+        SELECT
+            MONTH(voucher_date) AS month,
+            COUNT(*) AS totalCount,
+            SUM(debit_amount) AS totalDebit,
+            SUM(credit_amount) AS totalCredit,
+            MAX(updated_time) AS lastUpdateTime
+        FROM sys_voucher
+        WHERE unit_id = #{unitId}
+          AND YEAR(voucher_date) = #{year}
+        GROUP BY MONTH(voucher_date)
+        ORDER BY MONTH(voucher_date)
+    </select>
+
+    <select id="selectMonthDetail" parameterType="map" resultMap="VoucherResult">
+        SELECT
+            MAX(v.voucher_id) AS voucher_id,
+            v.unit_id,
+            v.voucher_no,
+            v.voucher_date,
+            MAX(v.summary) AS summary,
+            SUM(v.debit_amount) AS debit_amount,
+            SUM(v.credit_amount) AS credit_amount,
+            MAX(v.creator) AS creator,
+            MAX(v.auditor) AS auditor,
+            MAX(v.bookkeeper) AS bookkeeper,
+            MAX(v.cashier) AS cashier,
+            MAX(v.status) AS status,
+            MAX(v.created_time) AS created_time,
+            MAX(v.updated_time) AS updated_time
+        FROM sys_voucher v
+        WHERE v.unit_id = #{unitId}
+          AND YEAR(v.voucher_date) = #{year}
+          AND MONTH(v.voucher_date) = #{month}
+        GROUP BY v.voucher_no, v.voucher_date, v.unit_id
+        ORDER BY v.voucher_date, v.voucher_no
+    </select>
+
+    <select id="selectTotalCount" parameterType="map" resultType="java.lang.Integer">
+        SELECT COUNT(DISTINCT voucher_no)
+        FROM sys_voucher
+        WHERE unit_id = #{unitId}
+          AND YEAR(voucher_date) = #{year}
+          AND MONTH(voucher_date) = #{month}
+    </select>
+</mapper>

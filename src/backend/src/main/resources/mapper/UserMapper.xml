@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sjcw.mapper.UserMapper">
+
+    <resultMap id="UserResult" type="com.sjcw.entity.User">
+        <id property="userId" column="user_id"/>
+        <result property="loginName" column="login_name"/>
+        <result property="password" column="password"/>
+        <result property="realName" column="real_name"/>
+        <result property="phone" column="phone"/>
+        <result property="email" column="email"/>
+        <result property="unitId" column="unit_id"/>
+        <result property="unitName" column="unit_name"/>
+        <result property="isEnabled" column="is_enabled"/>
+        <result property="lastLoginTime" column="last_login_time"/>
+        <result property="createdTime" column="created_time"/>
+        <result property="updatedTime" column="updated_time"/>
+    </resultMap>
+
+    <sql id="selectUserVo">
+        SELECT u.user_id, u.login_name, u.password, u.real_name, u.phone, u.email, u.unit_id,
+               u.is_enabled, u.last_login_time, u.created_time, u.updated_time,
+               COALESCE(un.unit_name, '') AS unit_name
+        FROM sys_user u
+        LEFT JOIN sys_unit un ON u.unit_id = un.unit_id
+    </sql>
+
+    <select id="selectUserList" parameterType="com.sjcw.entity.User" resultMap="UserResult">
+        <include refid="selectUserVo"/>
+        <where>
+            <if test="realName != null and realName != ''">AND u.real_name LIKE CONCAT('%', #{realName}, '%')</if>
+            <if test="loginName != null and loginName != ''">AND u.login_name LIKE CONCAT('%', #{loginName}, '%')</if>
+            <if test="unitId != null and unitId != ''">AND u.unit_id = #{unitId}</if>
+            <if test="isEnabled != null">AND u.is_enabled = #{isEnabled}</if>
+        </where>
+        ORDER BY u.created_time DESC
+    </select>
+
+    <select id="selectUserByLoginName" parameterType="string" resultMap="UserResult">
+        <include refid="selectUserVo"/>
+        WHERE u.login_name = #{loginName}
+    </select>
+
+    <select id="selectRoleIdsByUserId" parameterType="string" resultType="string">
+        SELECT role_id FROM sys_user_role WHERE user_id = #{userId}
+    </select>
+</mapper>

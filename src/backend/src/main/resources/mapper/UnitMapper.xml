@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sjcw.mapper.UnitMapper">
+
+    <resultMap id="UnitResult" type="com.sjcw.entity.Unit">
+        <id property="unitId" column="unit_id"/>
+        <result property="unitName" column="unit_name"/>
+        <result property="unitCode" column="unit_code"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="unitLevel" column="unit_level"/>
+        <result property="unitPath" column="unit_path"/>
+        <result property="address" column="address"/>
+        <result property="phone" column="phone"/>
+        <result property="contactPerson" column="contact_person"/>
+        <result property="description" column="description"/>
+        <result property="isEnabled" column="is_enabled"/>
+        <result property="sortOrder" column="sort_order"/>
+        <result property="createdTime" column="created_time"/>
+        <result property="updatedTime" column="updated_time"/>
+    </resultMap>
+
+    <sql id="selectUnitVo">
+        SELECT unit_id, unit_name, unit_code, parent_id, unit_level, unit_path,
+               address, phone, contact_person, description, is_enabled, sort_order,
+               created_time, updated_time
+        FROM sys_unit
+    </sql>
+
+    <select id="selectUnitTree" resultMap="UnitResult">
+        <include refid="selectUnitVo"/>
+        ORDER BY sort_order, unit_level
+    </select>
+
+    <select id="selectUnitList" parameterType="com.sjcw.entity.Unit" resultMap="UnitResult">
+        <include refid="selectUnitVo"/>
+        <where>
+            <if test="unitName != null and unitName != ''">AND unit_name LIKE CONCAT('%', #{unitName}, '%')</if>
+            <if test="isEnabled != null">AND is_enabled = #{isEnabled}</if>
+        </where>
+        ORDER BY sort_order, unit_level
+    </select>
+</mapper>

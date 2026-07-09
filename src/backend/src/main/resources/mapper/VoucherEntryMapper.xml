@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sjcw.mapper.VoucherEntryMapper">
+
+    <resultMap id="VoucherEntryResult" type="com.sjcw.entity.VoucherEntry">
+        <id property="entryId" column="entry_id"/>
+        <result property="voucherId" column="voucher_id"/>
+        <result property="entryNo" column="entry_no"/>
+        <result property="accountCode" column="account_code"/>
+        <result property="accountName" column="account_name"/>
+        <result property="summary" column="summary"/>
+        <result property="debitAmount" column="debit_amount"/>
+        <result property="creditAmount" column="credit_amount"/>
+        <result property="createdTime" column="created_time"/>
+    </resultMap>
+
+    <select id="selectByVoucherId" parameterType="string" resultMap="VoucherEntryResult">
+        SELECT * FROM sys_voucher_entry 
+        WHERE voucher_id = #{voucherId} 
+        ORDER BY entry_no
+    </select>
+
+    <delete id="deleteByVoucherId" parameterType="string">
+        DELETE FROM sys_voucher_entry WHERE voucher_id = #{voucherId}
+    </delete>
+</mapper>

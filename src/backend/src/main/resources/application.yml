@@ -1,0 +1,27 @@
+server:
+  port: 8080
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+  datasource:
+    url: jdbc:sqlserver://localhost:50096;databaseName=sjcw;encrypt=false;trustServerCertificate=true;charset=GBK;loginTimeout=30
+    username: sa
+    password: rootroot
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  mapper-locations: classpath:mapper/**/*.xml
+  type-aliases-package: com.sjcw.entity
+
+jwt:
+  secret: sjcw-secret-key-2024-audit-system
+  expiration: 86400000
+
+swagger:
+  enabled: true

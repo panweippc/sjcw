@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sjcw.mapper.MenuMapper">
+
+    <resultMap id="MenuResult" type="com.sjcw.entity.Menu">
+        <id property="menuId" column="menu_id"/>
+        <result property="menuName" column="menu_name"/>
+        <result property="menuCode" column="menu_code"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="menuLevel" column="menu_level"/>
+        <result property="menuPath" column="menu_path"/>
+        <result property="icon" column="icon"/>
+        <result property="sortOrder" column="sort_order"/>
+        <result property="isEnabled" column="is_enabled"/>
+        <result property="isVisible" column="is_visible"/>
+        <result property="createdTime" column="created_time"/>
+        <result property="updatedTime" column="updated_time"/>
+    </resultMap>
+
+    <sql id="selectMenuVo">
+        SELECT menu_id, menu_name, menu_code, parent_id, menu_level, menu_path,
+               icon, sort_order, is_enabled, is_visible, created_time, updated_time
+        FROM sys_menu
+    </sql>
+
+    <select id="selectMenuTree" resultMap="MenuResult">
+        <include refid="selectMenuVo"/>
+        WHERE is_enabled = 1 AND is_visible = 1
+        ORDER BY menu_level, sort_order
+    </select>
+
+    <select id="selectMenuTreeByRoleIds" parameterType="list" resultMap="MenuResult">
+        <include refid="selectMenuVo"/>
+        WHERE menu_id IN (
+            SELECT DISTINCT rm.menu_id
+            FROM sys_role_menu rm
+            WHERE rm.role_id IN
+            <foreach collection="roleIds" item="roleId" open="(" separator="," close=")">
+                #{roleId}
+            </foreach>
+        ) AND is_enabled = 1 AND is_visible = 1
+        ORDER BY menu_level, sort_order
+    </select>
+
+    <select id="selectPermissionCodesByRoleIds" parameterType="list" resultType="string">
+        SELECT DISTINCT p.permission_code
+        FROM sys_role_permission rp
+        JOIN sys_permission p ON rp.permission_id = p.permission_id
+        WHERE rp.role_id IN
+        <foreach collection="roleIds" item="roleId" open="(" separator="," close=")">
+            #{roleId}
+        </foreach>
+    </select>
+</mapper>
